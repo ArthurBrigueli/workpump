@@ -3,7 +3,6 @@ import {useAuth} from '../../../context/AuthContext'
 
 const Home = ()=>{
 
-    const {user, token} = useAuth()
 
 
     
@@ -13,8 +12,6 @@ const Home = ()=>{
     return(
         <View>
             <Text>Home Teste</Text>
-            <Text>{user.name} teste</Text>
-            <Text>{token} teste</Text>
         </View>
     )
 }

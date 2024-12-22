@@ -23,6 +23,7 @@ const Login = ()=>{
 
 
     const handleLogin = async()=>{
+        /**
         try{
             const response = await axios.post('http://192.168.0.102:8090/api/auth/login',{
                 name: name, 
@@ -38,6 +39,8 @@ const Login = ()=>{
             console.log(error)
             setError(true)
         }
+        */
+        router.replace('../home')
     }
 
 
