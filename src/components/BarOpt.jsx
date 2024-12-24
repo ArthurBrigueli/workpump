@@ -14,7 +14,7 @@ const BarOpt = ()=>{
 const styles = StyleSheet.create({
     container: {
         backgroundColor: 'black',
-        height: '5%',
+        height: '10%',
         alignContent: 'center',
         justifyContent: 'center'
     }

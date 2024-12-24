@@ -28,7 +28,6 @@ const Login = ()=>{
                 name: name, 
                 password: password
             })
-            console.log(response.data)
             updateUserState(response.data.user, response.data.token)
             await AsyncStorage.setItem('TOKEN', response.data.token)
             setError(false)
@@ -38,11 +37,13 @@ const Login = ()=>{
             console.log(error)
             setError(true)
         }
+
+        router.replace('../home')
     }
 
 
     const handleCrateAccount = ()=>{
-        router.navigate('../(tabs)/home')
+        router.navigate('../register')
     }
 
 

@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import {useForm} from '../context/formRegisterContext'
 import axios from 'axios'
+import { useAuth } from '../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 
 const useFetchUser = ()=>{
 
     const {formData, updateFormData } = useForm();
     const [loading, setLoading] = useState(false)
+    const {updateUserState} = useAuth()
+
+
+
+
 
     const registerUser = async(cep, cidade, estado, rua, numero, telefone)=>{
 
@@ -30,7 +38,7 @@ const useFetchUser = ()=>{
     }
 
 
-    return {registerUser, loading}
+    return {registerUser, loading, login, error}
 
 }
 
