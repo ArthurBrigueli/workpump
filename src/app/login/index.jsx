@@ -37,8 +37,6 @@ const Login = ()=>{
             console.log(error)
             setError(true)
         }
-
-        router.replace('../home')
     }
 
 

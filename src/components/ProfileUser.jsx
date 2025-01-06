@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons"
 import { Text, TouchableOpacity, View } from "react-native"
 
-const ProfileUser = ({user, name, id, index})=>{
+const ProfileUser = ({user, name, id, index, openModal})=>{
     return(
         <View key={index} style={{flexDirection: 'row', backgroundColor: '#D2D1D1', alignItems: 'center', width: '90%', justifyContent: 'space-between', paddingHorizontal: 15, padding: 10, borderRadius: 15}}>
             <View style={{flexDirection: 'row', gap: 10}}>
@@ -20,7 +20,7 @@ const ProfileUser = ({user, name, id, index})=>{
                 </View>
             </View>
             <View>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={()=>{openModal(id)}}>
                     <Ionicons name="arrow-forward-outline" size={25}/>
                 </TouchableOpacity>
             </View>

@@ -38,7 +38,7 @@ const useFetchUser = ()=>{
     }
 
 
-    return {registerUser, loading, login, error}
+    return {registerUser, loading}
 
 }
 
