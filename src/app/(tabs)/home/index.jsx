@@ -48,7 +48,10 @@ const Home = () => {
 
 
     const renderItem = ({ item, index }) => (
-        <ProfileUser key={index} user={item} name={item.name} id={item.id} index={index} openModal={openModalUserProfile}/>
+        item.id != user.id && (
+            <ProfileUser key={index} user={item} name={item.name} id={item.id} index={index} openModal={openModalUserProfile}/>
+        )
+        
     );
 
     return (
