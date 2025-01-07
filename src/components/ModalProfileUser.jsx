@@ -1,6 +1,7 @@
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet"
 import { useEffect, useMemo } from "react";
 import { Text, TouchableOpacity, View } from "react-native"
+import {Link, router} from 'expo-router'
 
 const ModalProfileUser = ({modalRef, user, closeModal})=>{
 
@@ -12,6 +13,8 @@ const ModalProfileUser = ({modalRef, user, closeModal})=>{
 
     const handleContact = ()=>{
         console.log('ksaksa')
+        router.push(`/mensagem?id=${user.id}&name=${user.name}`)
+        closeModal()
     }
 
 
