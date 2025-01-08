@@ -39,7 +39,6 @@ const Home = () => {
 
     const closeModalUserProfile = ()=>{
         modalRefUserProfile.current?.close()
-        console.log('fechou')
     }
 
     useEffect(() => {

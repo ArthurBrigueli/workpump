@@ -8,11 +8,9 @@ const ModalProfileUser = ({modalRef, user, closeModal})=>{
     const snapPoints = useMemo(() => ['50%'], []);
 
 
-    console.log(user)
 
 
     const handleContact = ()=>{
-        console.log('ksaksa')
         router.push(`/mensagem?id=${user.id}&name=${user.name}`)
         closeModal()
     }
