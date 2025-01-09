@@ -2,18 +2,38 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet"
 import { useEffect, useMemo } from "react";
 import { Text, TouchableOpacity, View } from "react-native"
 import {Link, router} from 'expo-router'
+import io from 'socket.io-client'
+import { useAuth } from "../context/AuthContext";
+import axios from 'axios'
+
+const socket = io('http://192.168.0.102:8088')
 
 const ModalProfileUser = ({modalRef, user, closeModal})=>{
 
     const snapPoints = useMemo(() => ['50%'], []);
+    const {user:userAuth} = useAuth()
 
 
 
 
-    const handleContact = ()=>{
-        router.push(`/mensagem?id=${user.id}&name=${user.name}`)
-        closeModal()
-    }
+    const handleContact = async () => {
+        // Remetente entra no canal privado assim que decide entrar em contato
+        const channelId = userAuth.id.toString() + user.id.toString();
+        socket.emit('joinPrivateChannel', channelId);  // Remetente entra no canal
+    
+        // Cria o canal no backend, se necessário
+        try {
+            await axios.post('http://192.168.0.102:8090/api/auth/channel/create', {
+                id_channel: channelId,
+                users: JSON.stringify([userAuth.id, user.id]),
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    
+        router.push(`/mensagem?id=${user.id}&name=${user.name}&channelId=${channelId}`);  // Navega para a tela de mensagens
+        closeModal();  // Fecha o modal
+    };
 
 
 

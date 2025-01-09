@@ -12,8 +12,8 @@ const Login = ()=>{
 
     const [showPassword, setShowPassword] = useState(true)
     const {updateUserState} = useAuth()
-    const [name, setName] = useState()
-    const [password, setPassword] = useState()
+    const [name, setName] = useState("Arthur")
+    const [password, setPassword] = useState("Arthur")
     const [error, setError] = useState(false)
 
 
