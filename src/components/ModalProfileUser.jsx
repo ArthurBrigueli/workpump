@@ -20,12 +20,13 @@ const ModalProfileUser = ({modalRef, user, closeModal})=>{
         // Remetente entra no canal privado assim que decide entrar em contato
         const channelId = userAuth.id.toString() + user.id.toString();
         socket.emit('joinPrivateChannel', channelId);  // Remetente entra no canal
+
     
         // Cria o canal no backend, se necessário
         try {
             await axios.post('http://192.168.0.102:8090/api/auth/channel/create', {
                 id_channel: channelId,
-                users: JSON.stringify([userAuth.id, user.id]),
+                users: JSON.stringify([{id: userAuth.id, name: userAuth.name}, {id: user.id, name: user.name}]),
             });
         } catch (error) {
             console.log(error);

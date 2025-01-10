@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from "react";
 import { Text, TextInput, TouchableOpacity, View, FlatList } from "react-native";
 import io from 'socket.io-client';
 import { useAuth } from "../../context/AuthContext";
+import { Ionicons } from "@expo/vector-icons";
+import { format } from "date-fns";
 
 const socket = io('http://192.168.0.102:8088');  // A URL do seu servidor
 
@@ -17,7 +19,17 @@ const Mensagem = () => {
     // Função para enviar mensagem
     const sendMessage = () => {
         const userid = user.id;
-        socket.emit('privateMessage', { channelId, message, senderId: userid });
+        const utcDate = new Date(); // Hora em UTC
+        const status = "sent"; // O status inicial pode ser "sent" ou outro, dependendo do seu fluxo
+        // Enviando a mensagem com o timestamp e o status
+        socket.emit('privateMessage', { 
+            channelId, 
+            message, 
+            senderId: userid, 
+            timestamp: utcDate, 
+            status
+        });
+    
         setMessage(""); // Limpar a caixa de texto após o envio
     };
 
@@ -28,11 +40,14 @@ const Mensagem = () => {
 
         // Escutando o evento 'privateMessage' do Socket.IO
         socket.on('privateMessage', (data) => {
+            const formattedTime = data.timestamp ? format(new Date(data.timestamp), 'HH:mm') : '';
+            
             // Adicionando a mensagem e o senderId ao estado
             setMessages((prevMessages) => [
                 ...prevMessages,
-                { message: data.message, senderId: data.senderId },
+                { message: data.message, senderId: data.senderId, status: data.status, timestamp: formattedTime },
             ]);
+
         });
 
 
@@ -68,19 +83,16 @@ const Mensagem = () => {
                                 style={{
                                     backgroundColor: item.senderId === user.id ? '#155E95' : '#ddd',
                                     padding: 10,
-                                    borderRadius: 10,
                                     maxWidth: '100%',
+                                    borderTopLeftRadius: item.senderId === user.id ? 10 : 1,
+                                    borderTopRightRadius: 10,
+                                    borderBottomLeftRadius: 10,
+                                    borderBottomRightRadius: item.senderId === user.id ? 1 : 10,
+                                    gap: 5
                                 }}
                             >
-                                <Text
-                                    style={{
-                                        color: item.senderId === user.id ? 'white' : 'black',
-                                        fontWeight: 'bold',
-                                    }}
-                                >
-                                    {item.senderId === user.id ? 'Você' : `Usuário ${item.senderId}`}
-                                </Text>
                                 <Text style={{color: item.senderId === user.id ? 'white' : 'black'}}>{item.message}</Text>
+                                <Text style={{color: item.senderId === user.id ? 'white': 'black'}}>{item.timestamp}</Text>
                             </View>
                         </View>
                     )}
@@ -105,13 +117,8 @@ const Mensagem = () => {
                 />
                 <TouchableOpacity
                     onPress={sendMessage}
-                    style={{
-                        backgroundColor: 'blue',
-                        padding: 10,
-                        borderRadius: 10,
-                    }}
                 >
-                    <Text style={{ color: 'white', fontWeight: 'bold' }}>Enviar</Text>
+                    <Ionicons name="paper-plane-outline" size={25}/>
                 </TouchableOpacity>
             </View>
         </View>

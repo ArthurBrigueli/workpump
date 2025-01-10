@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAuth } from "../../../context/AuthContext";
 import io from 'socket.io-client'
 import { router } from "expo-router";
+import { format, formatDate } from 'date-fns'; // Importando a função de formatação
 
 const socket = io('http://192.168.0.102:8088')
 
@@ -11,10 +12,6 @@ const Mensagens = () => {
     const { user } = useAuth(); // Pegando o usuário logado
     const [channels, setChannels] = useState([]); // Para armazenar os canais
     const [usersInfo, setUsersInfo] = useState([]); // Para armazenar as informações dos outros usuários
-
-    
-
-
 
     const joinChannel = (userDetails, channel) => {
         // Emite o evento para o destinatário entrar no canal
@@ -24,78 +21,87 @@ const Mensagens = () => {
         router.push(`/mensagem?id=${userDetails.id}&name=${userDetails.name}&channelId=${channelId}`);
     };
 
-    const aa = ()=>{
-        const fetchMessage = async () => {
+    useEffect(() => {
+        const fetchMessages = async () => {
+            const idUser = user.id.toString(); // ID do usuário atual como string
             try {
-                const idUser = user.id.toString(); // Convertendo o ID para string
+                // Requisição para buscar os canais do usuário
                 const response = await axios.get(`http://192.168.0.102:8090/api/auth/channel/${idUser}`);
-                
-                // Transformando a string de 'users' em array
-                const channelsWithParsedUsers = response.data.map(channel => {
-                    return {
-                        ...channel,
-                        users: JSON.parse(channel.users) // Fazendo o parse para converter a string em array
-                    };
-                });
+                const channelsWithParsedUsers = response.data.map(channel => ({
+                    ...channel,
+                    users: JSON.parse(channel.users), // Parse da string para array
+                }));
 
-                setChannels(channelsWithParsedUsers); // Armazenando os canais com o 'users' como array
-
-                // Agora, vamos pegar as informações dos usuários
-                const userIds = channelsWithParsedUsers.flatMap(channel => channel.users)
-                    .filter(userId => userId !== user.id); // Excluindo o id do usuário logado
-                
-                // Remover duplicatas de IDs de usuários
-                const uniqueUserIds = [...new Set(userIds)];
-
-                // Fazendo o GET para pegar as informações dos outros usuários
-                const userInfoPromises = uniqueUserIds.map(userId => axios.get(`http://192.168.0.102:8090/api/auth/user/${userId}`));
-
-                // Espera todas as requisições de usuário
-                const userInfoResponses = await Promise.all(userInfoPromises);
-
-                // Armazenar as informações dos usuários
-                const usersDetails = userInfoResponses.map(response => response.data);
-                setUsersInfo(usersDetails);
-
+                setChannels(channelsWithParsedUsers); // Atualiza os canais
             } catch (error) {
-                console.log(error);
+                console.error("Erro ao buscar canais ou mensagens:", error);
             }
         };
+        fetchMessages();
+    }, []);
 
-        fetchMessage()
-    }
-    
-    
+    useEffect(() => {
+        if (channels.length > 0) {
+            channels.forEach((channel) => {
+                socket.emit('joinPrivateChannel', channel.idChannel);
+            });
+
+            socket.on('privateMessage', (data) => {
+                setChannels((prevChannels) =>
+                    prevChannels.map((channel) =>
+                        channel.idChannel === data.channelId
+                            ? { ...channel, lastMessage: data.message, timestamp: data.timestamp }
+                            : channel
+                    )
+                );
+            });
+        }
+
+        return () => {
+            socket.off('privateMessage');
+        };
+    }, [channels]);
 
     return (
-        <View style={{gap: 10, padding: 10}}>
-            <TouchableOpacity onPress={aa}>
-                <Text>Atualizar</Text>
-            </TouchableOpacity>
-            {channels.map((channel, index) => (
-                <View key={index} style={{backgroundColor: 'gray', padding: 10}}>
-                    <Text>ID do Canal: {channel.idChannel}</Text>
-                    {channel.users.map((userId) => {
-                        // Exibe os nomes dos usuários com quem está conversando, se não for o próprio usuário
-                        if (userId !== user.id) {
-                            const userDetails = usersInfo.find(user => user.id === userId);
-                            return userDetails ? (
-                                <View key={userId}>
-                                    <Text>Nome: {userDetails.name}</Text>
-                                    <TouchableOpacity 
-                                        style={{backgroundColor:'red', padding: 10}} 
-                                        onPress={() => joinChannel(userDetails, channel)}
-                                    >
-                                        <Text>Entrar na mensagem</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            ) : null;
-                        }
-                    })}
-                </View>
-            ))}
-        </View>
+        <View style={{ gap: 10, padding: 20}}>
+            {channels.map((channel, index) => {
+                const sender = channel.users.find(u => u.id !== user.id);
+                const formattedTime = channel.timestamp ? format(new Date(channel.timestamp), 'HH:mm') : '';
+                return (
+                    <TouchableOpacity 
+                        key={index} 
+                        style={{
+                            padding: 10,
+                            backgroundColor: 'white',
+                            borderRadius: 5,
+                            shadowColor: '#000',
+                            shadowOpacity: 0.2,
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowRadius: 5,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 15,
+                            justifyContent: 'space-between'
+                        }}
+                        onPress={() => joinChannel(sender, channel)}
+                    >
+                        <View style={{flexDirection: 'row', alignItems: 'center', gap: 15}}>
+                            <View style={{ backgroundColor: 'gray', width: 50, height: 50, borderRadius: 100 }} />
 
+                            <View>
+                                <Text>{sender?.name || "Desconhecido"}</Text>
+                                <Text style={{ color: 'gray', fontSize: 12 }}>
+                                    {channel.lastMessage || "Sem mensagens ainda"}
+                                </Text>
+                            </View>
+                        </View>
+                        <View>
+                            <Text style={{color: 'gray', fontSize: 12}}>{formattedTime}</Text>
+                        </View>
+                    </TouchableOpacity>
+                );
+            })}
+        </View>
     );
 };
 
