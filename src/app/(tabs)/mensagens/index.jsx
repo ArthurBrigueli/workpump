@@ -5,13 +5,13 @@ import { useAuth } from "../../../context/AuthContext";
 import io from 'socket.io-client'
 import { router } from "expo-router";
 import { format, formatDate } from 'date-fns'; // Importando a função de formatação
-
-const socket = io('http://192.168.0.102:8088')
+import {useSocket} from '../../../context/SocketContext'
 
 const Mensagens = () => {
     const { user } = useAuth(); // Pegando o usuário logado
     const [channels, setChannels] = useState([]); // Para armazenar os canais
     const [usersInfo, setUsersInfo] = useState([]); // Para armazenar as informações dos outros usuários
+    const socket = useSocket()
 
     const joinChannel = (userDetails, channel) => {
         // Emite o evento para o destinatário entrar no canal
@@ -27,6 +27,10 @@ const Mensagens = () => {
             try {
                 // Requisição para buscar os canais do usuário
                 const response = await axios.get(`http://192.168.0.102:8090/api/auth/channel/${idUser}`);
+
+                //id_channel: channelId,
+                //users: JSON.stringify([{id: userAuth.id, name: userAuth.name}, {id: user.id, name: user.name}]),
+
                 const channelsWithParsedUsers = response.data.map(channel => ({
                     ...channel,
                     users: JSON.parse(channel.users), // Parse da string para array
@@ -40,13 +44,11 @@ const Mensagens = () => {
         fetchMessages();
     }, []);
 
+
     useEffect(() => {
         if (channels.length > 0) {
-            channels.forEach((channel) => {
-                socket.emit('joinPrivateChannel', channel.idChannel);
-            });
-
             socket.on('privateMessage', (data) => {
+                console.log(data)
                 setChannels((prevChannels) =>
                     prevChannels.map((channel) =>
                         channel.idChannel === data.channelId
@@ -56,10 +58,6 @@ const Mensagens = () => {
                 );
             });
         }
-
-        return () => {
-            socket.off('privateMessage');
-        };
     }, [channels]);
 
     return (

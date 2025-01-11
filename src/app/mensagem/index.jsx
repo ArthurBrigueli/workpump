@@ -5,19 +5,20 @@ import io from 'socket.io-client';
 import { useAuth } from "../../context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
-
-const socket = io('http://192.168.0.102:8088');  // A URL do seu servidor
+import {useSocket}from '../../context/SocketContext'
+import axios from "axios";
 
 const Mensagem = () => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
-    const { id, channelId } = useLocalSearchParams();
+    const { id, channelId, name } = useLocalSearchParams();
     const { user } = useAuth();
+    const socket = useSocket();
 
     const flatListRef = useRef(null); // Referência para o FlatList
 
     // Função para enviar mensagem
-    const sendMessage = () => {
+    const sendMessage = async() => {
         const userid = user.id;
         const utcDate = new Date(); // Hora em UTC
         const status = "sent"; // O status inicial pode ser "sent" ou outro, dependendo do seu fluxo
@@ -29,8 +30,20 @@ const Mensagem = () => {
             timestamp: utcDate, 
             status
         });
+
+        try {
+
+            await axios.post('http://192.168.0.102:8090/api/auth/channel/create', {
+                id_channel: channelId,
+                users: JSON.stringify([{id: user.id, name: user.name}, {id: id, name: name}]),
+            });
+            socket.emit('privateChannel', {id_channel: channelId, users: JSON.stringify([{id: user.id, name: user.name}, {id: id, name: name}])})
+        } catch (error) {
+            console.log(error);
+        }
     
         setMessage(""); // Limpar a caixa de texto após o envio
+        
     };
 
     // Use useEffect para escutar as mensagens recebidas
