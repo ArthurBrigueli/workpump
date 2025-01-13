@@ -5,6 +5,7 @@ import {Link, router} from 'expo-router'
 import axios from 'axios'
 import {useAuth} from '../../context/AuthContext'
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useSocket} from '../../context/SocketContext'
 
 const Login = ()=>{
 
@@ -15,6 +16,7 @@ const Login = ()=>{
     const [name, setName] = useState("Arthur")
     const [password, setPassword] = useState("Arthur")
     const [error, setError] = useState(false)
+    const {socket, messageContext} = useSocket()
 
 
     const handleShowPassword = ()=>{
@@ -30,6 +32,7 @@ const Login = ()=>{
             })
             updateUserState(response.data.user, response.data.token)
             await AsyncStorage.setItem('TOKEN', response.data.token)
+            socket.emit('register', response.data.user.id)
             setError(false)
             router.replace('../home')
             

@@ -2,8 +2,14 @@ import { Stack } from "expo-router"
 import { AuthProvider } from "../context/AuthContext"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import {SocketProvider} from '../context/SocketContext'
+import { useEffect } from "react"
+import {Link, router} from 'expo-router'
+
 
 const Layout = ()=>{
+
+
+
     return(
         
         <SocketProvider>

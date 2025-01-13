@@ -9,9 +9,11 @@ import {useSocket} from '../../../context/SocketContext'
 
 const Mensagens = () => {
     const { user } = useAuth(); // Pegando o usuário logado
-    const [channels, setChannels] = useState([]); // Para armazenar os canais
     const [usersInfo, setUsersInfo] = useState([]); // Para armazenar as informações dos outros usuários
-    const socket = useSocket()
+    const {socket, messageContext,channels:channelsRonaldo, setChannels} = useSocket()
+
+
+
 
     const joinChannel = (userDetails, channel) => {
         // Emite o evento para o destinatário entrar no canal
@@ -21,48 +23,12 @@ const Mensagens = () => {
         router.push(`/mensagem?id=${userDetails.id}&name=${userDetails.name}&channelId=${channelId}`);
     };
 
-    useEffect(() => {
-        const fetchMessages = async () => {
-            const idUser = user.id.toString(); // ID do usuário atual como string
-            try {
-                // Requisição para buscar os canais do usuário
-                const response = await axios.get(`http://192.168.0.102:8090/api/auth/channel/${idUser}`);
-
-                //id_channel: channelId,
-                //users: JSON.stringify([{id: userAuth.id, name: userAuth.name}, {id: user.id, name: user.name}]),
-
-                const channelsWithParsedUsers = response.data.map(channel => ({
-                    ...channel,
-                    users: JSON.parse(channel.users), // Parse da string para array
-                }));
-
-                setChannels(channelsWithParsedUsers); // Atualiza os canais
-            } catch (error) {
-                console.error("Erro ao buscar canais ou mensagens:", error);
-            }
-        };
-        fetchMessages();
-    }, []);
 
 
-    useEffect(() => {
-        if (channels.length > 0) {
-            socket.on('privateMessage', (data) => {
-                console.log(data)
-                setChannels((prevChannels) =>
-                    prevChannels.map((channel) =>
-                        channel.idChannel === data.channelId
-                            ? { ...channel, lastMessage: data.message, timestamp: data.timestamp }
-                            : channel
-                    )
-                );
-            });
-        }
-    }, [channels]);
 
     return (
         <View style={{ gap: 10, padding: 20}}>
-            {channels.map((channel, index) => {
+            {channelsRonaldo.map((channel, index) => {
                 const sender = channel.users.find(u => u.id !== user.id);
                 const formattedTime = channel.timestamp ? format(new Date(channel.timestamp), 'HH:mm') : '';
                 return (
