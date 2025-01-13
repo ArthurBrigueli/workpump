@@ -14,7 +14,6 @@ export const SocketProvider = ({ children }) => {
     useEffect(() => {
         const socketInstance = io('http://192.168.0.102:8088'); // URL do seu servidor
         
-
         socketInstance.on('chat-private', (data)=>{
             setMessageContext(data)
             setMessages((prev)=>[...prev, data])

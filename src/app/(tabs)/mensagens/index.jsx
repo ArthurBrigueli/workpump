@@ -10,7 +10,7 @@ import {useSocket} from '../../../context/SocketContext'
 const Mensagens = () => {
     const { user } = useAuth(); // Pegando o usuário logado
     const [usersInfo, setUsersInfo] = useState([]); // Para armazenar as informações dos outros usuários
-    const {socket, messageContext,channels:channelsRonaldo, setChannels} = useSocket()
+    const {socket, messageContext, channels:channelsRonaldo, setChannels} = useSocket()
 
 
 

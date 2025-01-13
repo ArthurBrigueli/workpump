@@ -9,9 +9,9 @@ import {useSocket} from '../../context/SocketContext'
 
 
 const Mensagem = () => {
-    const {socket, messages:messagesSocket, setMessages:setMessagesSocket} = useSocket()
+    const {socket, messages:messagesSocket, setMessages:setMessagesSocket, messageContext, setMessageContext} = useSocket()
     const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState(messagesSocket)
+    const [messages, setMessages] = useState([])
     const { id, channelId, name } = useLocalSearchParams();
     const { user } = useAuth();
     const [isOnline, setIsOnline] = useState(false)
@@ -42,7 +42,8 @@ const Mensagem = () => {
                 status: isOnline ? "Recebido":"Enviado"
             }
     
-            setMessagesSocket((prev)=>[...prev, payload])
+            setMessageContext(payload)
+            setMessages((prev)=>[...prev, payload])
             socket.emit('chat-private', payload)
         });
         
@@ -55,7 +56,7 @@ const Mensagem = () => {
         if (flatListRef.current) {
             flatListRef.current.scrollToEnd({ animated: true });
         }
-    }, [messagesSocket]);  // Quando as mensagens mudarem, rola para o final
+    }, [messages]);  // Quando as mensagens mudarem, rola para o final
 
     return (
         <View style={{ flex: 1, padding: 20, justifyContent: 'flex-end' }}>
@@ -63,7 +64,7 @@ const Mensagem = () => {
             <View style={{flexDirection: 'column', maxHeight: '100%', paddingTop: 50}}>
                 <FlatList
                     ref={flatListRef}
-                    data={messagesSocket}
+                    data={messages}
                     renderItem={({ item }) => (
                         <View
                             style={{
