@@ -6,10 +6,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import axios from "axios";
 import {useSocket} from '../../context/SocketContext'
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const Mensagem = () => {
-    const {socket, messages:messagesSocket, setMessages:setMessagesSocket, messageContext, setMessageContext} = useSocket()
+    const {socket, channels, setChannels, setUpdateChannels, updateChannels} = useSocket()
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([])
     const { id, channelId, name } = useLocalSearchParams();
@@ -20,35 +21,27 @@ const Mensagem = () => {
     const flatListRef = useRef(null); // Referência para o FlatList
 
     // Função para enviar mensagem
-    const sendMessage = async() => {
+    const sendMessage = async () => {
 
-        const utcDate = new Date(); // Hora em UTC
-        try {
-
-            await axios.post('http://192.168.0.102:8090/api/auth/channel/create', {
-                id_channel: channelId,
-                users: JSON.stringify([{id: user.id, name: user.name}, {id: id, name: name}]),
-            });
-        } catch (error) {
-            console.log(error);
-        }
-
-        socket.emit('check-status', id, (isOnline) => {
+        socket.emit('check-status', id, async(isOnline) => {
             const payload = {
-                to: id,
-                from: socket.id,
+                to: {id: id, name: name},
+                from: {socketId: socket.id, id: user.id,name: user.name},
                 channelId: channelId,
                 msg: message,
                 status: isOnline ? "Recebido":"Enviado"
             }
-    
-            setMessageContext(payload)
-            setMessages((prev)=>[...prev, payload])
-            socket.emit('chat-private', payload)
-        });
-        
 
-        setMessage(""); // Limpar a caixa de texto após o envio
+            //para apagar as mensagens local de um chat (temporario para teste)
+            //await AsyncStorage.removeItem(`chat_${channelId}`)
+
+            // Envia para o socket
+            socket.emit("chat-private", payload);
+    
+            setMessage(""); // Limpa o campo de entrada
+
+        });
+    
     };
     // Use useEffect para escutar as mensagens recebidas
     // Função para rolar para o final sempre que uma nova mensagem for adicionada
@@ -58,6 +51,35 @@ const Mensagem = () => {
         }
     }, [messages]);  // Quando as mensagens mudarem, rola para o final
 
+
+    useEffect(() => {
+        // Carregar mensagens do AsyncStorage ao montar o componente
+        const loadMessages = async () => {
+            const existingChat = await AsyncStorage.getItem(`chat_${channelId}`);
+            const messagesStorage = existingChat ? JSON.parse(existingChat) : [];
+            setMessages(messagesStorage); // Define as mensagens carregadas no estado
+        };
+        loadMessages();
+    }, [channelId]);
+
+
+    //recebe a mensagem enviada para o
+    useEffect(() => {
+        // Ouvir mensagens recebidas pelo socket
+        const handleMessage = async (data) => {
+            if (data.channelId === channelId) {
+                setMessages((prev) => [...prev, data]);
+            }
+        };
+    
+        socket.on("chat-private", handleMessage);
+    
+        return () => {
+            socket.off("chat-private", handleMessage); // Remove o ouvinte ao desmontar
+        };
+    }, [channelId]);
+
+
     return (
         <View style={{ flex: 1, padding: 20, justifyContent: 'flex-end' }}>
 
@@ -66,29 +88,33 @@ const Mensagem = () => {
                     ref={flatListRef}
                     data={messages}
                     renderItem={({ item }) => (
-                        <View
+                        item.channelId == channelId && (
+                            <View
                             style={{
-                                alignSelf: item.from === socket.id ? 'flex-end' : 'flex-start',
+                                alignSelf: item.to.id == user.id ? 'flex-start' : 'flex-end',
                                 marginBottom: 10,
                                 maxWidth: '80%',
                             }}
                         >
                             <View
                                 style={{
-                                    backgroundColor: item.from === socket.id ? item.status == "Recebido" ? "#155E95":"#6A80B9" : "#ddd",
+                                    backgroundColor: item.to.id == user.id ? "#ddd" : item.status == "Recebido" ? "#155E95":"#6A80B9",
                                     padding: 10,
                                     maxWidth: '100%',
-                                    borderTopLeftRadius: item.from === socket.id ? 10 : 1,
+                                    borderTopLeftRadius: item.to.id == user.id ? 1 : 10,
                                     borderTopRightRadius: 10,
                                     borderBottomLeftRadius: 10,
-                                    borderBottomRightRadius: item.from === socket.id ? 1 : 10,
+                                    borderBottomRightRadius: item.to.id == user.id ? 10 : 1,
                                     gap: 5
                                 }}
                             >
-                                <Text style={{color: item.from === socket.id ? 'white' : 'black'}}>{item.msg}</Text>
+                                <Text style={{color: item.to.id == user.id ? 'black' : 'white'}}>{item.msg}</Text>
                             </View>
-                            <Text style={{textAlign: 'right', fontSize: 10}}>{item.status}</Text>
+                            {item.to.id != user.id && (
+                                <Text style={{textAlign: 'right', fontSize: 10}}>{item.status}</Text>
+                            )}
                         </View>
+                        )
                     )}
                     keyExtractor={(item, index) => index.toString()}
                 />
