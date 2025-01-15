@@ -15,11 +15,12 @@ export const SocketProvider = ({ children }) => {
 
     useEffect(() => {
         const socketInstance = io('http://192.168.0.102:8088'); // URL do seu servidor
+
         
+        
+
         socketInstance.on('chat-private', async(data)=>{
 
-
-            console.log('fele: ', data)
 
             const existi = channels.find(channel=>channel.channelId == data.channelId)
             if(!existi){

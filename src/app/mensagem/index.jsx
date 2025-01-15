@@ -24,12 +24,13 @@ const Mensagem = () => {
     const sendMessage = async () => {
 
         socket.emit('check-status', id, async(isOnline) => {
+            
             const payload = {
                 to: {id: id, name: name},
                 from: {socketId: socket.id, id: user.id,name: user.name},
                 channelId: channelId,
                 msg: message,
-                status: isOnline ? "Recebido":"Enviado"
+                status: "Enviado"
             }
 
             //para apagar as mensagens local de um chat (temporario para teste)
