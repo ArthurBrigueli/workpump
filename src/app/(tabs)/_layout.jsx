@@ -17,18 +17,18 @@ const Layout = () => {
                     }}
                 />
                 <Tabs.Screen
-                    name="profile/index"
-                    options={{
-                        tabBarLabel: "Profile",
-                        tabBarIcon: () => <Ionicons name="person" size={24} />,
-                        headerShown: false,
-                    }}
-                />
-                <Tabs.Screen
                     name="mensagens"
                     options={{
                         tabBarLabel: "Mensagens",
                         tabBarIcon: () => <Ionicons name="chatbox" size={24} />,
+                        headerShown: false,
+                    }}
+                />
+                <Tabs.Screen
+                    name="profile/index"
+                    options={{
+                        tabBarLabel: "Profile",
+                        tabBarIcon: () => <Ionicons name="person" size={24} />,
                         headerShown: false,
                     }}
                 />

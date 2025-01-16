@@ -19,7 +19,7 @@ const useFetchUser = ()=>{
 
         setLoading(true)
 
-        const response = await axios.post('http://192.168.0.102:8090/api/auth/register/user', {
+        const response = await axios.post('http://147.79.82.47:8080/api/auth/register/user', {
             name: formData.name,
             cpf: formData.cpf,
             email: formData.email,

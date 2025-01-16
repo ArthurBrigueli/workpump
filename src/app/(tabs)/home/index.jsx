@@ -31,7 +31,7 @@ const Home = () => {
 
     const openModalUserProfile = async(id) => {
         modalRefUserProfile.current?.expand();
-        const response = await axios.get(`http://192.168.0.102:8090/api/auth/user/${id}`)
+        const response = await axios.get(`http://147.79.82.47:8080/api/auth/user/${id}`)
         setProfileUserId(response.data)
         
         

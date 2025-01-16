@@ -14,7 +14,7 @@ export const SocketProvider = ({ children }) => {
     const [updateChannels, setUpdateChannels] = useState(false)
 
     useEffect(() => {
-        const socketInstance = io('http://192.168.0.102:8088'); // URL do seu servidor
+        const socketInstance = io('http://147.79.82.47:8081'); // URL do seu servidor
 
         
         
@@ -30,7 +30,7 @@ export const SocketProvider = ({ children }) => {
                         idChannel: data.channelId,
                         users: [{id: data.from.id, name: data.from.name}, {id: data.to.id, name: data.to.name}],
                     }
-                    await axios.post('http://192.168.0.102:8090/api/auth/channel/create', {
+                    await axios.post('http://147.79.82.47:8080/api/auth/channel/create', {
                         id_channel: data.channelId,
                         users: JSON.stringify([{id: data.from.id, name: data.from.name}, {id: data.to.id, name: data.to.name}]),
                     });
@@ -57,7 +57,7 @@ export const SocketProvider = ({ children }) => {
             const idUser = data.toString(); // ID do usuário atual como string
             try {
                 // Requisição para buscar os canais do usuário
-                const response = await axios.get(`http://192.168.0.102:8090/api/auth/channel/${idUser}`);
+                const response = await axios.get(`http://147.79.82.47:8080/api/auth/channel/${idUser}`);
 
                 //id_channel: channelId,
                 //users: JSON.stringify([{id: userAuth.id, name: userAuth.name}, {id: user.id, name: user.name}]),

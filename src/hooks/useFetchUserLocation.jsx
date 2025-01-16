@@ -13,7 +13,7 @@ const useFetchUserLocation = ()=>{
         
 
         try{
-            const response = await axios.post("http://192.168.0.102:8090/api/auth/users",{
+            const response = await axios.post("http://147.79.82.47:8080/api/auth/users",{
                 lat: parseFloat(lat),
                 lng: parseFloat(lng),
                 raio: parseFloat(raio)
