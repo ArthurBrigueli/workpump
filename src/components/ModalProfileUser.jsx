@@ -18,7 +18,7 @@ const ModalProfileUser = ({modalRef, user, closeModal})=>{
 
     const handleContact = async () => {
         // Remetente entra no canal privado assim que decide entrar em contato
-        const channelId = userAuth.id.toString() + user.id.toString();
+        const channelId = [userAuth.id, user.id].sort().join('');
         socket.emit('joinPrivateChannel', channelId);  // Remetente entra no canal
 
     
