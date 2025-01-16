@@ -1,7 +1,6 @@
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useMemo, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import MapView, { Circle, Marker } from "react-native-maps";
 
 const ModalMaps = ({lat, lng, raio:oi, closeModal, modalRef}) => {
     const snapPoints = useMemo(() => ['50%'], []);
@@ -22,23 +21,7 @@ const ModalMaps = ({lat, lng, raio:oi, closeModal, modalRef}) => {
             <BottomSheetView style={{flex: 1, alignItems: 'center'}}>
                 <View style={{flex: 1, width: '100%', height: '100%', alignItems:'center', gap: 10}}>
                     <View style={{width: '90%', height: '70%'}}>
-                        <MapView style={StyleSheet.absoluteFill} initialRegion={{latitude: lat, longitude: lng, latitudeDelta: 0.005, longitudeDelta: 0.005}}>
-                            <Marker coordinate={{
-                                latitude: lat,
-                                longitude: lng
-                            }}/>
-
-                            <Circle
-                                center={{
-                                    latitude: lat,
-                                    longitude: lng,
-                                }}
-                                radius={raio} // Raio em metros (ajuste conforme necessário)
-                                strokeColor="rgba(0, 150, 255, 0.8)" // Cor da borda do círculo
-                                fillColor="rgba(0, 150, 255, 0.2)" // Cor de preenchimento do círculo
-                                strokeWidth={2} // Espessura da borda
-                            />
-                        </MapView>
+                        
                     </View>
                     <View style={{flexDirection: 'row', gap: 10, flexWrap: 'wrap'}}>
                         <TouchableOpacity onPress={()=>{setRaio(100)}} style={{backgroundColor: 'white', borderRadius: 100, paddingHorizontal: 8, paddingVertical: 5}}>
