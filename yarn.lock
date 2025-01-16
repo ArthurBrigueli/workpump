@@ -1874,7 +1874,7 @@
     serve-static "^1.13.1"
     ws "^6.2.3"
 
-"@react-native/gradle-plugin@0.76.6":
+"@react-native/gradle-plugin@^0.76.6", "@react-native/gradle-plugin@0.76.6":
   version "0.76.6"
   resolved "https://registry.npmjs.org/@react-native/gradle-plugin/-/gradle-plugin-0.76.6.tgz"
   integrity sha512-sDzpf4eiynryoS6bpYCweGoxSmWgCSx9lzBoxIIW+S6siyGiTaffzZHWCm8mIn9UZsSPlEO37q62ggnR9Zu/OA==
@@ -6994,6 +6994,7 @@ wonka@^6.3.2:
     "@react-native-vector-icons/common" "^11.0.0"
     "@react-native-vector-icons/evil-icons" "^1.10.1"
     "@react-native-vector-icons/fontawesome6" "^6.7.1"
+    "@react-native/gradle-plugin" "^0.76.6"
     axios "^1.7.9"
     date-fns "^4.1.0"
     expo "~52.0.25"
